@@ -16,7 +16,6 @@ namespace DAL
         private SqlConnection conn;
         private static string connString;
         private SqlCommand command;       
-        private static List<Transcripcion> empList;
         private ErrorHandler.ErrorHandler err;
 
         public TranscripcionDAL(string _connString)
@@ -60,26 +59,23 @@ namespace DAL
         /// Database UPDATE Transcripcion
         /// </summary>
         /// <param name="transcripcion"></param>
-        public void UpdateTranscripcion(Transcripcion transcripcion)
+        public void Update(Transcripcion transcripcion)
         {
             try
             {
-                string sqlUpdateString =
-                "UPDATE Employee SET FirstName=@firstName, LastName=@LastName, Designation=@Designation WHERE ID=@ID ";
+                string sqlUpdateString = "UPDATE Transcripcion SET Login = @Login, Fichero = @Fichero, FechaRecepcion = @FechaRecepcion, Estado = @Estado, FechaTranscripcion = @FechaTranscripcion, TextoTranscripcion = @TextoTranscripcion WHERE IdTranscripcion = @IdTranscripcion;";
 
                 conn = new SqlConnection(connString);
-
-                command = new SqlCommand();
+                command = new SqlCommand(sqlUpdateString, conn);
                 command.Connection = conn;
+                command.Parameters.Add(new SqlParameter("@IdTranscripcion", transcripcion.IdTranscripcion));
+                command.Parameters.Add(new SqlParameter("@Login", transcripcion.Login));
+                command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero));
+                command.Parameters.Add(new SqlParameter("@FechaRecepcion", transcripcion.FechaRecepcion));
+                command.Parameters.Add(new SqlParameter("@Estado", transcripcion.Estado));
+                command.Parameters.Add(new SqlParameter("@FechaTranscripcion", (object)transcripcion.FechaRecepcion ?? DBNull.Value));
+                command.Parameters.Add(new SqlParameter("@TextoTranscripcion", transcripcion.Login));
                 command.Connection.Open();
-                command.CommandText = sqlUpdateString;
-
-                SqlParameter firstNameparam = new SqlParameter("@firstName", emp.FirstName);
-                SqlParameter lastNameparam = new SqlParameter("@lastName", emp.LastName);
-                SqlParameter IDparam = new SqlParameter("@ID", emp.EmpCode);
-                SqlParameter designationParam = new SqlParameter("@designation", emp.Designation);
-
-                command.Parameters.AddRange(new SqlParameter[] { firstNameparam, lastNameparam, IDparam, designationParam });
                 command.ExecuteNonQuery();
                 command.Connection.Close();
             }
@@ -89,31 +85,23 @@ namespace DAL
                 throw;
             }
         }
-       /// <summary>
-       /// Database DELETE - Delete an Employee
-       /// </summary>
-       /// <param name="iD"></param>
-        public void DeleteEmployee(int iD)
+        /// <summary>
+        /// Database DELETE Transcripcion
+        /// </summary>
+        /// <param name="idTranscripcion"></param>
+        public void Delete(int idTranscripcion)
         {
             try
             {
-                using (conn)
-                {
-                    string sqlDeleteString =
-                    "DELETE FROM Employee WHERE ID=@ID ";
+                string sqlDeleteString = "DELETE FROM Transcripcion WHERE IdTranscripcion = @IdTranscripcion;";
 
-                    conn = new SqlConnection(connString);
-
-                    command = new SqlCommand();
-                    command.Connection = conn;
-                    command.Connection.Open();
-                    command.CommandText = sqlDeleteString;
-
-                    SqlParameter IDparam = new SqlParameter("@ID", iD);
-                    command.Parameters.Add(IDparam);
-                    command.ExecuteNonQuery();
-                    command.Connection.Close();
-                }
+                conn = new SqlConnection(connString);
+                command = new SqlCommand(sqlDeleteString, conn);
+                command.Connection = conn;
+                command.Parameters.Add(new SqlParameter("@IdTranscripcion", idTranscripcion));
+                command.Connection.Open();
+                command.ExecuteNonQuery();
+                command.Connection.Close();
             }
             catch (Exception ex)
             {
@@ -122,28 +110,38 @@ namespace DAL
             }
         }
         /// <summary>
-        /// Database SELECT - Get an employee
+        /// Database SELECT Transcripcion
         /// </summary>
         /// <param name="ID"></param>
         /// <returns></returns>
-        public Employee GetEmployee(int ID)
+        public Transcripcion Select(int idTranscripcion)
         {
             try
             {
-                if (empList==null)
+                Transcripcion transcripcion = null;
+                string sqlSelectString = "SELECT IdTranscripcion, Login, Fichero, FechaRecepcion, Estado, FechaTranscripcion, TextoTranscripcion FROM Transcripcion WHERE IdTranscripcion = @IdTranscripcion;";
+
+                conn = new SqlConnection(connString);
+                command = new SqlCommand(sqlSelectString, conn);
+                command.Connection = conn;
+                command.Parameters.Add(new SqlParameter("@IdTranscripcion", idTranscripcion));
+                command.Connection.Open();
+
+                SqlDataReader dataReader = command.ExecuteReader();
+                DataTable dt = new DataTable("Table1");
+                if (dataReader != null) { dt.Load(dataReader); }
+                command.Connection.Close();
+                if (dt.Rows.Count>0)
                 {
-                    empList = GetEmployees();
+                    DataRow dr = dt.Rows[0];
+                    transcripcion = new Transcripcion();
+                    transcripcion.IdTranscripcion = Numeros.ToInt(dr["IdTranscripcion"]);
+                    transcripcion.Login = dr["Login"].ToString();
+                    transcripcion.Fichero = (byte[])dr["Fichero"];
+
                 }
-                // enumerate through all employee list
-                // and select the concerned employee
-                foreach (Employee emp in empList)
-                {
-                    if (emp.EmpCode==ID)
-                    {
-                        return emp;
-                    }
-                }
-                return null;
+
+                return transcripcion;
             }
             catch (Exception ex)
             {
@@ -152,37 +150,34 @@ namespace DAL
             }
         }
         /// <summary>
-        /// Method - Get list of all employees
+        /// Database SELECT with filters Transcripcion
         /// </summary>
-        /// <returns>Employee</returns>
-        private List<Employee> GetEmployees()
+        /// <returns>Transcripcion</returns>
+        private List<Transcripcion> SelectFilters()
         {
             try
             {
-                using (conn)
-                {
-                    empList = new List<Employee>();
+                List<Transcripcion> lista = new List<Transcripcion>();
 
-                    conn = new SqlConnection(connString);
+                conn = new SqlConnection(connString);
 
-                    string sqlSelectString = "SELECT * FROM Employee";
-                    command = new SqlCommand(sqlSelectString, conn);
-                    command.Connection.Open();
+                string sqlSelectString = "SELECT IdTranscripcion, Login, Fichero, FechaRecepcion, Estado, FechaTranscripcion, TextoTranscripcion FROM Transcripcion";
+                command = new SqlCommand(sqlSelectString, conn);
+                command.Connection.Open();
 
-                    SqlDataReader reader = command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Employee emp = new Employee();
-                        emp.FirstName = reader[0].ToString();
-                        emp.LastName = reader[1].ToString();
-                        emp.EmpCode = Convert.ToInt16(reader[2]);
-                        emp.Designation = reader[3].ToString();
-                        empList.Add(emp);
-                    }
-                    command.Connection.Close();
-                    return empList;
-                }
-                
+                SqlDataReader reader = command.ExecuteReader();
+                //while (reader.Read())
+                //{
+                //    Employee emp = new Employee();
+                //    emp.FirstName = reader[0].ToString();
+                //    emp.LastName = reader[1].ToString();
+                //    emp.EmpCode = Convert.ToInt16(reader[2]);
+                //    emp.Designation = reader[3].ToString();
+                //    empList.Add(emp);
+                //}
+                //command.Connection.Close();
+
+                return lista;
             }
             catch (Exception ex)
             {
