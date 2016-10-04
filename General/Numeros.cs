@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static General.Enumeraciones;
 
 namespace General
 {
@@ -11,6 +12,183 @@ namespace General
     /// </summary>
     public static class Numeros
     {
+        private static object ToNumber(TipoNumero tipoNumero, object valor, object defecto)
+        {
+            if (valor == null || (valor is DBNull)) { return defecto; }
+
+            object numero = defecto;
+            switch (tipoNumero)
+            {
+                case TipoNumero.Boolean:
+                    if (valor is string)
+                    {
+                        Boolean numeroBoolean;
+                        if (Boolean.TryParse((string)valor, out numeroBoolean))
+                        { numero = numeroBoolean; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToBoolean(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Byte:
+                    if (valor is string)
+                    {
+                        Byte numeroByte;
+                        if (Byte.TryParse((string)valor, out numeroByte))
+                        { numero = numeroByte; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToByte(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Int16:
+                    if (valor is string)
+                    {
+                        Int16 numeroInt16;
+                        if (Int16.TryParse((string)valor, out numeroInt16))
+                        { numero = numeroInt16; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToInt16(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Int32:
+                    if (valor is string)
+                    {
+                        Int32 numeroInt32;
+                        if (Int32.TryParse((string)valor, out numeroInt32))
+                        { numero = numeroInt32; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToInt32(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Int64:
+                    if (valor is string)
+                    {
+                        Int64 numeroInt64;
+                        if (Int64.TryParse((string)valor, out numeroInt64))
+                        { numero = numeroInt64; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToInt64(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.UInt16:
+                    if (valor is string)
+                    {
+                        UInt16 numeroUInt16;
+                        if (UInt16.TryParse((string)valor, out numeroUInt16))
+                        { numero = numeroUInt16; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToUInt16(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.UInt32:
+                    if (valor is string)
+                    {
+                        UInt32 numeroUInt32;
+                        if (UInt32.TryParse((string)valor, out numeroUInt32))
+                        { numero = numeroUInt32; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToUInt32(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.UInt64:
+                    if (valor is string)
+                    {
+                        UInt64 numeroUInt64;
+                        if (UInt64.TryParse((string)valor, out numeroUInt64))
+                        { numero = numeroUInt64; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToUInt64(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Single:
+                    if (valor is string)
+                    {
+                        Single numeroSingle;
+                        if (Single.TryParse((string)valor, out numeroSingle))
+                        { numero = numeroSingle; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToSingle(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Double:
+                    if (valor is string)
+                    {
+                        Double numeroDouble;
+                        if (Double.TryParse((string)valor, out numeroDouble))
+                        { numero = numeroDouble; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToDouble(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+                case TipoNumero.Decimal:
+                    if (valor is string)
+                    {
+                        Decimal numeroDecimal;
+                        if (Decimal.TryParse((string)valor, out numeroDecimal))
+                        { numero = numeroDecimal; }
+                    }
+                    else
+                    {
+                        try
+                        { numero = Convert.ToDecimal(valor); }
+                        catch
+                        {; }
+                    }
+                    break;
+            }
+
+            return numero;
+        }
+
         public static int ToInt(object valor)
         {
             return ToInt(valor, 0);
