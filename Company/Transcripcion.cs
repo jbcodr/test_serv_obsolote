@@ -1,25 +1,13 @@
-﻿// Author - Anshu Dutta
-// Contact - anshu.dutta@gmail.com
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static General.Enumeraciones;
 
 namespace Company
 {
     public class Transcripcion
     {
-        /// <summary>
-        /// Enumeración de los estados de una transcripción.
-        /// </summary>
-        public enum EstadoTranscripcion
-        {
-            Pendiente,
-            EnProceso,
-            Realizada,
-            Error,
-        }
-
         private int idTranscripcion;
         private string login;
         private byte[] fichero;
