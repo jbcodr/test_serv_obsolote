@@ -31,21 +31,40 @@ namespace DAL
         {
             try
             {
-                string sqlInserString = "INSERT INTO Transcripcion (Login, Estado, NombreFichero, Fichero, FechaRecepcion, FechaTranscripcion, TextoTranscripcion) VALUES (@Login, @Estado, @NombreFichero, @Fichero, @FechaRecepcion, @FechaTranscripcion, @TextoTranscripcion);"
+                string sqlInserString = "INSERT INTO Transcripcion (Login, Estado, NombreFichero, Fichero, FechaRecepcion, FechaTranscripcion, TextoTranscripcion) VALUES (@Login, @Estado, @NombreFichero, @Fichero, @FechaRecepcion, @FechaTranscripcion, @TextoTranscripcion); "
                     + " SELECT SCOPE_IDENTITY();";
 
+                //transcripcion.Fichero = new byte[] { 55, 56, 57 };
                 conn = new SqlConnection(connString);
                 command = new SqlCommand(sqlInserString, conn);
-                command.Parameters.Add(new SqlParameter("@Login", transcripcion.Login));
-                command.Parameters.Add(new SqlParameter("@Estado", transcripcion.Estado));
-                command.Parameters.Add(new SqlParameter("@NombreFichero", (object)transcripcion.NombreFichero??DBNull.Value));
-                if (transcripcion.Fichero == null)
-                { command.Parameters.Add(new SqlParameter("@Fichero", DBNull.Value)); }
-                else
-                { command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero)); }
-                command.Parameters.Add(new SqlParameter("@FechaRecepcion", transcripcion.FechaRecepcion));
-                command.Parameters.Add(new SqlParameter("@FechaTranscripcion", (object)transcripcion.FechaRecepcion ?? DBNull.Value));
-                command.Parameters.Add(new SqlParameter("@TextoTranscripcion", (object)transcripcion.TextoTranscripcion??DBNull.Value));
+                command.Parameters.AddWithValue("Login", transcripcion.Login);
+                command.Parameters.AddWithValue("Estado", transcripcion.Estado);
+                command.Parameters.AddWithValue("NombreFichero", (object)transcripcion.NombreFichero ?? DBNull.Value);
+                SqlParameter fichParam = command.Parameters.AddWithValue("Fichero", (object)transcripcion.Fichero ?? DBNull.Value);
+                fichParam.DbType = DbType.Binary;
+
+                //SqlParameter fichParam = command.Parameters.AddWithValue("Fichero", (object)transcripcion.Fichero ?? DBNull.Value);
+                //fichParam.DbType = DbType.Binary;
+                //command.Parameters.Add(new SqlParameter("@Fichero", SqlDbType.VarBinary, -1).Value = (object)transcripcion.Fichero ?? DBNull.Value);
+                //if (transcripcion.Fichero == null)
+                //{ command.Parameters.Add(new SqlParameter("@Fichero", DBNull.Value)); }
+                //else
+                //{ command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero)); }
+
+
+                //command.Parameters.Add("@Fichero", SqlDbType.VarBinary, -1).Value = (object)transcripcion.Fichero ?? DBNull.Value;
+
+                //SqlParameter fichParam = new SqlParameter("@Fichero", SqlDbType.VarBinary, -1);
+                //fichParam.Value = (object)transcripcion.Fichero ?? DBNull.Value;
+                ////if (transcripcion.Fichero != null) { fichParam.Value = transcripcion.Fichero; }
+                //command.Parameters.Add(fichParam);
+                //if (transcripcion.Fichero == null)
+                //{ command.Parameters.Add(new SqlParameter("@Fichero", DBNull.Value)); }
+                //else
+                //{ command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero)); }
+                command.Parameters.AddWithValue("FechaRecepcion", transcripcion.FechaRecepcion);
+                command.Parameters.AddWithValue("FechaTranscripcion", (object)transcripcion.FechaTranscripcion ?? DBNull.Value);
+                command.Parameters.AddWithValue("TextoTranscripcion", (object)transcripcion.TextoTranscripcion ?? DBNull.Value);
 
                 command.Connection.Open();
                 int id = Numeros.ToInt(command.ExecuteScalar());
