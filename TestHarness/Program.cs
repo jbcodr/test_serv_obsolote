@@ -20,9 +20,17 @@ namespace TestHarness
         
         static void Main(string[] args)
         {
-            Employee emp = new Employee(); ;
-            string strConnString = @"Data Source=SYNPUNEHCRV-105\SQLEXPRESS;Initial Catalog=Company;Integrated Security=True";
-            DAL.DAL dal = new DAL.DAL(strConnString);
+            //Employee emp = new Employee(); ;
+            ////string strConnString = @"Data Source=SYNPUNEHCRV-105\SQLEXPRESS;Initial Catalog=Company;Integrated Security=True";
+
+            Transcripcion transcripcion = new Transcripcion();
+            string strConnString = @"Data Source=.\NCS_2008;Initial Catalog=Company;Integrated Security=True";
+            DAL.TranscripcionDAL dal = new DAL.TranscripcionDAL(strConnString);
+
+            transcripcion.Login = "rafael";
+            transcripcion.NombreFichero = "audio-1234.mp3";
+            transcripcion.FechaRecepcion = DateTime.Now;
+            dal.Insert(transcripcion);
 
             #region "Test database Functionalities"
 

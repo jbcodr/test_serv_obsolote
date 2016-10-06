@@ -10,9 +10,10 @@ namespace Company
     {
         private int idTranscripcion;
         private string login;
+        private EstadoTranscripcion estado;
+        private string nombreFichero;
         private byte[] fichero;
         private DateTime fechaRecepcion;
-        private EstadoTranscripcion estado;
         private DateTime? fechaTranscripcion;   // Declaramos como DateTime? para permitir valores null.
         private string textoTranscripcion;
 
@@ -38,6 +39,22 @@ namespace Company
             set { login = value; }
         }
         /// <summary>
+        /// Property Estado
+        /// </summary>
+        public EstadoTranscripcion Estado
+        {
+            get { return estado; }
+            set { estado = value; }
+        }
+        /// <summary>
+        /// Property NombreFichero
+        /// </summary>
+        public string NombreFichero
+        {
+            get { return nombreFichero; }
+            set { nombreFichero = value; }
+        }
+        /// <summary>
         /// Property Fichero
         /// </summary>
         public byte[] Fichero
@@ -52,14 +69,6 @@ namespace Company
         {
             get { return fechaRecepcion; }
             set { fechaRecepcion = value; }
-        }
-        /// <summary>
-        /// Property Estado
-        /// </summary>
-        public EstadoTranscripcion Estado
-        {
-            get { return estado; }
-            set { estado = value; }
         }
         /// <summary>
         /// Property FechaTranscripcion

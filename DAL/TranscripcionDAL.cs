@@ -31,18 +31,21 @@ namespace DAL
         {
             try
             {
-                string sqlInserString = "INSERT INTO Transcripcion (Login, Fichero, FechaRecepcion, Estado, FechaTranscripcion, TextoTranscripcion) VALUES (@Login, @Fichero, @FechaRecepcion, @Estado, @FechaTranscripcion, @TextoTranscripcion);"
+                string sqlInserString = "INSERT INTO Transcripcion (Login, Estado, NombreFichero, Fichero, FechaRecepcion, FechaTranscripcion, TextoTranscripcion) VALUES (@Login, @Estado, @NombreFichero, @Fichero, @FechaRecepcion, @FechaTranscripcion, @TextoTranscripcion);"
                     + " SELECT SCOPE_IDENTITY();";
 
                 conn = new SqlConnection(connString);
                 command = new SqlCommand(sqlInserString, conn);
-                command.Connection = conn;
                 command.Parameters.Add(new SqlParameter("@Login", transcripcion.Login));
-                command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero));
-                command.Parameters.Add(new SqlParameter("@FechaRecepcion", transcripcion.FechaRecepcion));
                 command.Parameters.Add(new SqlParameter("@Estado", transcripcion.Estado));
+                command.Parameters.Add(new SqlParameter("@NombreFichero", (object)transcripcion.NombreFichero??DBNull.Value));
+                if (transcripcion.Fichero == null)
+                { command.Parameters.Add(new SqlParameter("@Fichero", DBNull.Value)); }
+                else
+                { command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero)); }
+                command.Parameters.Add(new SqlParameter("@FechaRecepcion", transcripcion.FechaRecepcion));
                 command.Parameters.Add(new SqlParameter("@FechaTranscripcion", (object)transcripcion.FechaRecepcion ?? DBNull.Value));
-                command.Parameters.Add(new SqlParameter("@TextoTranscripcion", transcripcion.Login));
+                command.Parameters.Add(new SqlParameter("@TextoTranscripcion", (object)transcripcion.TextoTranscripcion??DBNull.Value));
 
                 command.Connection.Open();
                 int id = Numeros.ToInt(command.ExecuteScalar());
@@ -63,16 +66,16 @@ namespace DAL
         {
             try
             {
-                string sqlUpdateString = "UPDATE Transcripcion SET Login = @Login, Fichero = @Fichero, FechaRecepcion = @FechaRecepcion, Estado = @Estado, FechaTranscripcion = @FechaTranscripcion, TextoTranscripcion = @TextoTranscripcion WHERE IdTranscripcion = @IdTranscripcion;";
+                string sqlUpdateString = "UPDATE Transcripcion SET Login = @Login, Estado = @Estado, NombreFichero = @NombreFichero, Fichero = @Fichero, FechaRecepcion = @FechaRecepcion, FechaTranscripcion = @FechaTranscripcion, TextoTranscripcion = @TextoTranscripcion WHERE IdTranscripcion = @IdTranscripcion;";
 
                 conn = new SqlConnection(connString);
                 command = new SqlCommand(sqlUpdateString, conn);
-                command.Connection = conn;
                 command.Parameters.Add(new SqlParameter("@IdTranscripcion", transcripcion.IdTranscripcion));
                 command.Parameters.Add(new SqlParameter("@Login", transcripcion.Login));
+                command.Parameters.Add(new SqlParameter("@Estado", transcripcion.Estado));
+                command.Parameters.Add(new SqlParameter("@NombreFichero", transcripcion.NombreFichero));
                 command.Parameters.Add(new SqlParameter("@Fichero", transcripcion.Fichero));
                 command.Parameters.Add(new SqlParameter("@FechaRecepcion", transcripcion.FechaRecepcion));
-                command.Parameters.Add(new SqlParameter("@Estado", transcripcion.Estado));
                 command.Parameters.Add(new SqlParameter("@FechaTranscripcion", (object)transcripcion.FechaRecepcion ?? DBNull.Value));
                 command.Parameters.Add(new SqlParameter("@TextoTranscripcion", transcripcion.Login));
                 command.Connection.Open();
@@ -97,7 +100,6 @@ namespace DAL
 
                 conn = new SqlConnection(connString);
                 command = new SqlCommand(sqlDeleteString, conn);
-                command.Connection = conn;
                 command.Parameters.Add(new SqlParameter("@IdTranscripcion", idTranscripcion));
                 command.Connection.Open();
                 command.ExecuteNonQuery();
@@ -119,11 +121,10 @@ namespace DAL
             try
             {
                 Transcripcion transcripcion = null;
-                string sqlSelectString = "SELECT IdTranscripcion, Login, Fichero, FechaRecepcion, Estado, FechaTranscripcion, TextoTranscripcion FROM Transcripcion WHERE IdTranscripcion = @IdTranscripcion;";
+                string sqlSelectString = "SELECT IdTranscripcion, Login, Estado, NombreFichero, Fichero, FechaRecepcion, FechaTranscripcion, TextoTranscripcion FROM Transcripcion WHERE IdTranscripcion = @IdTranscripcion;";
 
                 conn = new SqlConnection(connString);
                 command = new SqlCommand(sqlSelectString, conn);
-                command.Connection = conn;
                 command.Parameters.Add(new SqlParameter("@IdTranscripcion", idTranscripcion));
                 command.Connection.Open();
 
@@ -153,7 +154,7 @@ namespace DAL
         /// Database SELECT with filters Transcripcion
         /// </summary>
         /// <returns>Transcripcion</returns>
-        private List<Transcripcion> SelectFilters()
+        private List<Transcripcion> SelectFilters(string login, DateTime? desdeFechaRecepcion, DateTime? hastaFechaRecepcion)
         {
             try
             {
@@ -161,8 +162,14 @@ namespace DAL
 
                 conn = new SqlConnection(connString);
 
-                string sqlSelectString = "SELECT IdTranscripcion, Login, Fichero, FechaRecepcion, Estado, FechaTranscripcion, TextoTranscripcion FROM Transcripcion";
+                string sqlSelectString = "SELECT IdTranscripcion, Login, Estado, NombreFichero, Fichero, FechaRecepcion, FechaTranscripcion, TextoTranscripcion FROM Transcripcion WHERE" +
+                    " Login = @Login AND" +
+                    " (@DesdeFechaRecepcion IS NULL OR FechaRecepcion >= @DesdeFechaRecepcion)" +
+                    " (@HastaFechaRecepcion IS NULL OR FechaRecepcion >= @HastaFechaRecepcion)";
                 command = new SqlCommand(sqlSelectString, conn);
+                command.Parameters.Add(new SqlParameter("@Login", login));
+                command.Parameters.Add(new SqlParameter("@DesdeFechaRecepcion", (object)desdeFechaRecepcion?? DBNull.Value));
+                command.Parameters.Add(new SqlParameter("@HastaFechaRecepcion", (object)hastaFechaRecepcion ?? DBNull.Value));
                 command.Connection.Open();
 
                 SqlDataReader reader = command.ExecuteReader();
